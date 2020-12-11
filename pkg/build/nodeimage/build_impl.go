@@ -268,10 +268,15 @@ func (c *buildContext) prePullImages(bits kube.Bits, dir, containerID string) ([
 		i, image := i, image // https://golang.org/doc/faq#closures_and_goroutines
 		fns = append(fns, func() error {
 			if !builtImages.Has(image) {
-				fmt.Printf("Pulling: %s\n", image)
-				err := docker.Pull(c.logger, image, 2)
-				if err != nil {
-					c.logger.Warnf("Failed to pull %s with error: %v", image, err)
+				if strings.Contains(image, "etcd") {
+					fmt.Printf("Not Pulling: %s\n", image)
+				} else {
+					fmt.Printf("Pulling: %s\n", image)
+					err := docker.Pull(c.logger, image, 2)
+					if err != nil {
+						c.logger.Warnf("Failed to pull %s with error: %v", image, err)
+					}
+
 				}
 				// TODO(bentheelder): generate a friendlier name
 				pullName := fmt.Sprintf("%d.tar", i)
